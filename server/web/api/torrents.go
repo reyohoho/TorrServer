@@ -3,6 +3,8 @@ package api
 import (
 	"net/http"
 	"strings"
+	"encoding/base64"
+	"fmt"
 
 	"server/dlna"
 	"server/log"
@@ -86,6 +88,19 @@ func addTorrent(req torrReqJS, c *gin.Context) {
 		return
 	}
 
+    authHeader := c.Request.Header.Get("Authorization")
+    log.TLogln("Authorization header:", authHeader)
+
+	decodedBytes, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(authHeader, "Basic "))
+	if err != nil {
+		fmt.Println("Error decode Base64:", err)
+		return
+	}
+
+	decodedString := string(decodedBytes)
+	fmt.Println("Decoded string:", decodedString)
+
+	userName := strings.Split(decodedString, ":")[0]
 	log.TLogln("add torrent", req.Link)
 	req.Link = strings.ReplaceAll(req.Link, "&amp;", "&")
 	torrSpec, err := utils.ParseLink(req.Link)
@@ -95,6 +110,7 @@ func addTorrent(req torrReqJS, c *gin.Context) {
 		return
 	}
 
+	torrSpec.DisplayName = userName + ":" + torrSpec.DisplayName;
 	tor, err := torr.AddTorrent(torrSpec, req.Title, req.Poster, req.Data, req.Category)
 
 	if tor.Data != "" && set.BTsets.EnableDebug {
