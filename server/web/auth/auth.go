@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"unsafe"
+	"sync/atomic"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -14,28 +16,69 @@ import (
 	"server/settings"
 )
 
+var authAccounts atomic.Value
+
 func SetupAuth(engine *gin.Engine) {
 	if !settings.HttpAuth {
 		return
 	}
+	
+	loadAccounts()
+
+	engine.Use(func(c *gin.Context) {
+		accs := authAccounts.Load().(gin.Accounts)
+		if accs == nil {
+			c.AbortWithStatus(401)
+			return
+		}
+		BasicAuth(accs)(c)
+	})
+	
+	go watchAccountsFile()
+}
+
+func loadAccounts() {
 	accs := getAccounts()
-	if accs == nil {
-		return
+	if accs != nil {
+		authAccounts.Store(accs)
+		log.TLogln("Auth accounts updated")
 	}
-	engine.Use(BasicAuth(accs))
 }
 
 func getAccounts() gin.Accounts {
 	buf, err := os.ReadFile(filepath.Join(settings.Path, "accs.db"))
 	if err != nil {
+		log.TLogln("Error reading accs.db:", err)
 		return nil
 	}
 	var accs gin.Accounts
 	err = json.Unmarshal(buf, &accs)
 	if err != nil {
-		log.TLogln("Error parse accs.db", err)
+		log.TLogln("Error parsing accs.db:", err)
+		return nil
 	}
 	return accs
+}
+
+func watchAccountsFile() {
+	accsPath := filepath.Join(settings.Path, "accs.db")
+	var lastModTime time.Time
+
+	for {
+		time.Sleep(5 * time.Second)
+
+		fileInfo, err := os.Stat(accsPath)
+		if err != nil {
+			log.TLogln("Error accessing accs.db:", err)
+			continue
+		}
+
+		if fileInfo.ModTime().After(lastModTime) {
+			log.TLogln("Detected change in accs.db, updating auth...")
+			loadAccounts()
+			lastModTime = fileInfo.ModTime()
+		}
+	}
 }
 
 type authPair struct {
