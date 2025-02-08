@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export CGO_ENABLED=0
+
 PLATFORMS=(
   'linux/amd64'
   'linux/arm64'
