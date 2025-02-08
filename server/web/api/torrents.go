@@ -109,7 +109,9 @@ func addTorrent(req torrReqJS, c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-
+	if req.Title != "" {
+		req.Title = userName + ":" + req.Title
+	}
 	tor, err := torr.AddTorrent(torrSpec, req.Title, req.Poster, req.Data, req.Category)
 
 	if tor.Data != "" && set.BTsets.EnableDebug {
@@ -139,8 +141,8 @@ func addTorrent(req torrReqJS, c *gin.Context) {
 			if tor.Title == "" {
 				tor.Title = tor.Name()
 			}
+			tor.Title = userName + ":" + tor.Title
 		}
-                tor.Title = userName + ":" + tor.Title
 		if req.SaveToDB {
 			torr.SaveTorrentToDB(tor)
 		}
