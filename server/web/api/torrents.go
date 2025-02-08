@@ -110,7 +110,6 @@ func addTorrent(req torrReqJS, c *gin.Context) {
 		return
 	}
 
-	torrSpec.DisplayName = userName + ":" + torrSpec.DisplayName;
 	tor, err := torr.AddTorrent(torrSpec, req.Title, req.Poster, req.Data, req.Category)
 
 	if tor.Data != "" && set.BTsets.EnableDebug {
@@ -141,7 +140,7 @@ func addTorrent(req torrReqJS, c *gin.Context) {
 				tor.Title = tor.Name()
 			}
 		}
-
+                tor.Title = userName + ":" + tor.Title
 		if req.SaveToDB {
 			torr.SaveTorrentToDB(tor)
 		}
