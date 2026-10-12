@@ -6,8 +6,6 @@ import { CreditCard as CreditCardIcon } from '@material-ui/icons'
 import List from '@material-ui/core/List'
 import { useTranslation } from 'react-i18next'
 import AddDialogButton from 'components/Add'
-import SettingsDialog from 'components/Settings'
-import RemoveAll from 'components/RemoveAll'
 import AboutDialog from 'components/About'
 import CloseServer from 'components/CloseServer'
 import SearchDialogButton from 'components/Search'
@@ -27,8 +25,6 @@ const Sidebar = ({ isDrawerOpen, setIsDonationDialogOpen, isOffline, isLoading, 
       <List>
         <AddDialogButton isOffline={isOffline} isLoading={isLoading} />
         <SearchDialogButton isOffline={isOffline} isLoading={isLoading} />
-
-        <RemoveAll isOffline={isOffline} isLoading={isLoading} />
       </List>
 
       <Divider />
@@ -62,8 +58,6 @@ const Sidebar = ({ isDrawerOpen, setIsDonationDialogOpen, isOffline, isLoading, 
       <Divider />
 
       <List>
-        <SettingsDialog isOffline={isOffline} isLoading={isLoading} />
-
         <AboutDialog />
 
         <ListItem button onClick={() => setIsDonationDialogOpen(true)}>

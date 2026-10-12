@@ -45,6 +45,10 @@ type Torrent struct {
 	BytesReadUsefulData int64
 	BytesWrittenData    int64
 
+	ClientDownloadSpeed    float64
+	BytesReadByClients     int64
+	lastBytesReadByClients int64
+
 	PreloadSize    int64
 	PreloadedBytes int64
 
@@ -254,10 +258,16 @@ func (t *Torrent) progressEvent() {
 
 		if t.cache != nil {
 			t.PreloadedBytes = t.cache.GetState().Filled
+			currentBytesReadByClients := t.cache.GetTotalBytesReadByClients()
+			deltaClientBytes := currentBytesReadByClients - t.lastBytesReadByClients
+			t.ClientDownloadSpeed = float64(deltaClientBytes) / deltaTime
+			t.lastBytesReadByClients = currentBytesReadByClients
+			t.BytesReadByClients = currentBytesReadByClients
 		}
 	} else {
 		t.DownloadSpeed = 0
 		t.UploadSpeed = 0
+		t.ClientDownloadSpeed = 0
 	}
 	t.muTorrent.Unlock()
 
@@ -401,6 +411,7 @@ func (t *Torrent) Status() *state.TorrentStatus {
 		st.PreloadSize = t.PreloadSize
 		st.DownloadSpeed = t.DownloadSpeed
 		st.UploadSpeed = t.UploadSpeed
+		st.ClientDownloadSpeed = t.ClientDownloadSpeed
 
 		tst := t.Torrent.Stats()
 		st.BytesWritten = tst.BytesWritten.Int64()

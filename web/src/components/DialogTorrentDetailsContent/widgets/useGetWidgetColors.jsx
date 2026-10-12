@@ -8,6 +8,7 @@ const colors = {
   light: {
     downloadSpeed: { iconBGColor: '#118f00', valueBGColor: '#13a300' },
     uploadSpeed: { iconBGColor: '#0146ad', valueBGColor: '#0058db' },
+    clientDownloadSpeed: { iconBGColor: '#c18300', valueBGColor: '#d99400' },
     peers: { iconBGColor: '#cdc118', valueBGColor: '#d8cb18' },
     piecesCount: { iconBGColor: '#b6c95e', valueBGColor: '#c0d076' },
     piecesLength: { iconBGColor: '#0982c8', valueBGColor: '#098cd7' },
@@ -18,6 +19,7 @@ const colors = {
   dark: {
     downloadSpeed: { iconBGColor: '#0c6600', valueBGColor: '#0d7000' },
     uploadSpeed: { iconBGColor: '#003f9e', valueBGColor: '#0047b3' },
+    clientDownloadSpeed: { iconBGColor: '#9e6900', valueBGColor: '#b37800' },
     peers: { iconBGColor: '#a69c11', valueBGColor: '#b4a913' },
     piecesCount: { iconBGColor: '#8da136', valueBGColor: '#99ae3d' },
     piecesLength: { iconBGColor: '#07659c', valueBGColor: '#0872af' },

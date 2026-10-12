@@ -13,11 +13,13 @@ import {
   PeersWidget,
   UploadSpeedWidget,
   DownlodSpeedWidget,
+  ClientDownloadSpeedWidget,
 } from '../widgets'
 
 export default function DetailedView({
   downloadSpeed,
   uploadSpeed,
+  clientDownloadSpeed,
   torrent,
   torrentSize,
   PiecesCount,
@@ -38,6 +40,7 @@ export default function DetailedView({
         <WidgetWrapper detailedView>
           <DownlodSpeedWidget data={downloadSpeed} />
           <UploadSpeedWidget data={uploadSpeed} />
+          <ClientDownloadSpeedWidget data={clientDownloadSpeed} />
           <PeersWidget data={torrent} />
           <SizeWidget data={torrentSize} />
           <PiecesCountWidget data={PiecesCount} />

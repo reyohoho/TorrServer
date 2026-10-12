@@ -46,6 +46,21 @@ export const UploadSpeedWidget = ({ data }) => {
   )
 }
 
+export const ClientDownloadSpeedWidget = ({ data }) => {
+  const { t } = useTranslation()
+  const { iconBGColor, valueBGColor } = useGetWidgetColors('clientDownloadSpeed')
+
+  return (
+    <StatisticsField
+      title={t('ClientSpeed')}
+      value={humanizeSpeed(data) || `0 ${t('bps')}`}
+      iconBg={iconBGColor}
+      valueBg={valueBGColor}
+      icon={SwapVerticalCircleIcon}
+    />
+  )
+}
+
 export const PeersWidget = ({ data }) => {
   const { t } = useTranslation()
   const { iconBGColor, valueBGColor } = useGetWidgetColors('peers')

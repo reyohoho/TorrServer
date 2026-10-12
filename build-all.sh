@@ -1,22 +1,8 @@
 #!/bin/bash
+export CGO_ENABLED=0
 
 PLATFORMS=(
   'linux/amd64'
-  'linux/arm64'
-  'linux/arm7'
-  'linux/arm5'
-  'linux/386'
-  'windows/amd64'
-  'windows/386'
-  'darwin/amd64'
-  'darwin/arm64'
-  'freebsd/amd64'
-  'freebsd/arm7'
-  'linux/mips'
-  'linux/mipsle'
-  'linux/mips64'
-  'linux/mips64le'
-  'linux/riscv64'
 )
 
 type setopt >/dev/null 2>&1
@@ -140,19 +126,13 @@ EOF
 }
 
 build_appimage "amd64" "linux-amd64" "x86_64"
-build_appimage "arm64" "linux-arm64" "aarch64"
-build_appimage "arm7" "linux-arm7" "armhf"
 
 #####################################
 ### GStreamer build section
 #####
 
 GST_PLATFORMS=(
-  'windows/amd64'
   'linux/amd64'
-  'linux/arm64'
-  'darwin/amd64'
-  'darwin/arm64'
 )
 
 BUILD_FLAGS_GST="-ldflags=${LDFLAGS} -tags=nosqlite,gst -trimpath"
@@ -168,44 +148,9 @@ for PLATFORM in "${GST_PLATFORMS[@]}"; do
   eval "$CMD" || FAILURES="${FAILURES} gst/${GOOS}/${GOARCH}"
 done
 
-#####################################
-### Android build section
-#####
-
-declare -a COMPILERS=(
-  "arm7:armv7a-linux-androideabi21-clang"
-  "arm64:aarch64-linux-android21-clang"
-  "386:i686-linux-android21-clang"
-  "amd64:x86_64-linux-android21-clang"
-)
-
-export NDK_VERSION="27.0.12077973" # 25.1.8937393 26.2.11394342 27.0.12077973
-#export NDK_TOOLCHAIN=${ANDROID_HOME}/ndk/${NDK_VERSION}/toolchains/llvm/prebuilt/darwin-x86_64
-#export NDK_TOOLCHAIN="${PWD}/../android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64"
-export NDK_TOOLCHAIN=/Users/yourok/Projects/AndroidNDK
-GOOS=android
-
-for V in "${COMPILERS[@]}"; do
-  GOARCH=${V%:*}
-  COMPILER=${V#*:}
-  export CC="$NDK_TOOLCHAIN/bin/$COMPILER"
-  export CXX="$NDK_TOOLCHAIN/bin/$COMPILER++"
-  set_goarm "$GOARCH"
-  BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}${GOARM}"
-  CMD="GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} CGO_ENABLED=1 ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
-  echo "${CMD}"
-  eval "${CMD}" || FAILURES="${FAILURES} ${GOOS}/${GOARCH}${GOARM}"
-#  CMD="../upx -q ${BIN_FILENAME}"; # upx --brute produce much smaller binaries
-#  echo "compress with ${CMD}"
-#  eval "$CMD"
-done
-
 # eval errors
 if [[ "${FAILURES}" != "" ]]; then
   echo ""
   echo "failed on: ${FAILURES}"
   exit 1
 fi
-
-cd "${ROOT}/docker/lite" || exit 1
-./makedocker.sh

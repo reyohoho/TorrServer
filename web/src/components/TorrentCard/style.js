@@ -9,7 +9,7 @@ export const TorrentCard = styled.div`
     border-radius: 5px;
     display: grid;
     grid-template-columns: 120px 260px 1fr;
-    grid-template-rows: 180px;
+    grid-template-rows: 200px;
     grid-template-areas: 'poster description buttons';
     gap: 10px;
     padding: 10px;
@@ -22,12 +22,12 @@ export const TorrentCard = styled.div`
         'buttons buttons';
 
       grid-template-columns: 70px 1fr;
-      grid-template-rows: 110px max-content;
+      grid-template-rows: 130px max-content;
     }
 
     @media (max-width: 770px) {
       grid-template-columns: 60px 1fr;
-      grid-template-rows: 90px max-content;
+      grid-template-rows: 110px max-content;
     }
   `}
 `
@@ -102,11 +102,11 @@ export const TorrentCardDescription = styled.div`
     border-radius: 5px;
     padding: 5px;
     display: grid;
-    grid-template-rows: 55% 1fr;
+    grid-template-rows: 50% 1fr;
     gap: 10px;
 
     @media (max-width: 770px) {
-      grid-template-rows: 60% 1fr;
+      grid-template-rows: 55% 1fr;
       gap: 3px;
     }
 
@@ -154,20 +154,22 @@ export const TorrentCardDescription = styled.div`
 
     .description-statistics-wrapper {
       display: grid;
-      grid-template-columns: 80px 80px 1fr;
+      grid-template-columns: repeat(4, 1fr);
       align-self: end;
+      gap: 5px;
 
       @media (max-width: 1260px), (max-height: 500px) {
-        grid-template-columns: 70px 70px 1fr;
+        grid-template-columns: repeat(4, 1fr);
       }
 
       @media (max-width: 770px) {
-        grid-template-columns: 65px 65px 1fr;
+        grid-template-columns: repeat(4, 1fr);
       }
 
       @media (max-width: 700px) {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
       }
     }
 

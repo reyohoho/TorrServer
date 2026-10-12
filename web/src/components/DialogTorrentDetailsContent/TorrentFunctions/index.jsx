@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { memo } from 'react'
-import { playlistTorrHost, torrentsHost, viewedHost } from 'utils/Hosts'
+import { playlistTorrHost, viewedHost } from 'utils/Hosts'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Button } from '@material-ui/core'
 import ptt from 'parse-torrent-title'
@@ -16,7 +16,6 @@ const TorrentFunctions = memo(
     const latestViewedFile = playableFileList?.find(({ id }) => id === latestViewedFileId)?.path
     const isOnlyOnePlayableFile = playableFileList?.length === 1
     const latestViewedFileData = latestViewedFile && ptt.parse(latestViewedFile)
-    const dropTorrent = () => axios.post(torrentsHost(), { action: 'drop', hash })
     const removeTorrentViews = () =>
       axios.post(viewedHost(), { action: 'rem', hash, file_index: -1 }).then(() => setViewedFileList())
     const fullPlaylistLink = `${playlistTorrHost()}/${encodeURIComponent(name || title || 'file')}.m3u?link=${hash}&m3u`
@@ -60,9 +59,6 @@ const TorrentFunctions = memo(
         <MainSectionButtonGroup>
           <Button onClick={() => removeTorrentViews()} variant='contained' color='primary' size='large'>
             {t('RemoveViews')}
-          </Button>
-          <Button onClick={() => dropTorrent()} variant='contained' color='primary' size='large'>
-            {t('DropTorrent')}
           </Button>
         </MainSectionButtonGroup>
         <SmallLabel mb={10}>{t('Info')}</SmallLabel>

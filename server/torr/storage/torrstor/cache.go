@@ -36,8 +36,9 @@ type Cache struct {
 	pieces   map[int]*Piece
 	muPieces sync.RWMutex
 
-	readers   map[*Reader]struct{}
-	muReaders sync.RWMutex
+	readers                 map[*Reader]struct{}
+	muReaders               sync.RWMutex
+	totalBytesReadByClients int64
 
 	isRemove atomic.Bool
 	isClosed atomic.Bool
@@ -454,4 +455,22 @@ func (c *Cache) GetCapacity() int64 {
 		return 0
 	}
 	return c.capacity
+}
+
+func (c *Cache) GetTotalBytesReadByClients() int64 {
+	if c == nil {
+		return 0
+	}
+	c.muReaders.Lock()
+	defer c.muReaders.Unlock()
+	return c.totalBytesReadByClients
+}
+
+func (c *Cache) AddBytesReadByClients(bytes int64) {
+	if c == nil {
+		return
+	}
+	c.muReaders.Lock()
+	c.totalBytesReadByClients += bytes
+	c.muReaders.Unlock()
 }

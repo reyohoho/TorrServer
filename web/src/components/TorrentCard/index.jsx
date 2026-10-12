@@ -3,8 +3,6 @@ import {
   Audiotrack as AudiotrackIcon,
   UnfoldMore as UnfoldMoreIcon,
   PlayArrow as PlayArrowIcon,
-  Close as CloseIcon,
-  Delete as DeleteIcon,
 } from '@material-ui/icons'
 import { getPeerString, humanizeSize, humanizeSpeed, removeRedundantCharacters } from 'utils/Utils'
 import { playlistTorrHost, streamHost, torrentsHost } from 'utils/Hosts'
@@ -180,7 +178,6 @@ const Torrent = ({ torrent }) => {
 
   const openDetailedInfo = () => setIsDetailedInfoOpened(true)
   const closeDetailedInfo = () => setIsDetailedInfoOpened(false)
-  const openDeleteTorrentAlert = () => setIsDeleteTorrentOpened(true)
   const closeDeleteTorrentAlert = () => setIsDeleteTorrentOpened(false)
 
   const {
@@ -190,13 +187,13 @@ const Torrent = ({ torrent }) => {
     poster,
     torrent_size: torrentSize,
     download_speed: downloadSpeed,
+    client_download_speed: clientDownloadSpeed,
     hash,
     stat,
     data,
     file_stats: torrentFileList,
   } = torrent
 
-  const dropTorrent = () => axios.post(torrentsHost(), { action: 'drop', hash })
   const deleteTorrent = () => axios.post(torrentsHost(), { action: 'rem', hash })
 
   const getParsedTitle = () => {
@@ -511,16 +508,6 @@ const Torrent = ({ torrent }) => {
               onNotSupported={() => markPlayerUnsupported(selectedPlayer.key)}
             />
           )}
-
-          <StyledButton onClick={() => dropTorrent(torrent)}>
-            <CloseIcon />
-            <span>{t('Drop')}</span>
-          </StyledButton>
-
-          <StyledButton onClick={openDeleteTorrentAlert}>
-            <DeleteIcon />
-            <span>{t('Delete')}</span>
-          </StyledButton>
         </TorrentCardButtons>
 
         <TorrentCardDescription>
@@ -541,9 +528,16 @@ const Torrent = ({ torrent }) => {
             </div>
 
             <div className='description-statistics-element-wrapper'>
-              <div className='description-section-name'>{t('Speed')}</div>
+              <div className='description-section-name'>{t('DownloadSpeed')}</div>
               <div className='description-statistics-element-value'>
                 {downloadSpeed > 0 ? humanizeSpeed(downloadSpeed) : '---'}
+              </div>
+            </div>
+
+            <div className='description-statistics-element-wrapper'>
+              <div className='description-section-name'>{t('ClientSpeed')}</div>
+              <div className='description-statistics-element-value'>
+                {clientDownloadSpeed > 0 ? humanizeSpeed(clientDownloadSpeed) : '---'}
               </div>
             </div>
 
@@ -640,6 +634,7 @@ export default memo(Torrent, (prev, next) => {
     p.stat === n.stat &&
     p.torrent_size === n.torrent_size &&
     p.download_speed === n.download_speed &&
+    p.client_download_speed === n.client_download_speed &&
     p.data === n.data &&
     sameFileList(p.file_stats, n.file_stats)
   )

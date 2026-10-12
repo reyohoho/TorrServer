@@ -126,6 +126,12 @@ func addTorrent(req torrReqJS, c *gin.Context) {
 		}
 	}
 
+	addedBy, _ := c.Get(gin.AuthUserKey)
+	userName, _ := addedBy.(string)
+	if userName != "" && req.Title != "" {
+		req.Title = userName + ":" + req.Title
+	}
+
 	tor, err := torr.AddTorrent(torrSpec, req.Title, req.Poster, req.Data, req.Category)
 	if err != nil {
 		log.TLogln("error add torrent:", err)
@@ -146,6 +152,9 @@ func addTorrent(req torrReqJS, c *gin.Context) {
 			tor.Title = strings.Trim(tor.Title, " ")
 			if tor.Title == "" {
 				tor.Title = tor.Name()
+			}
+			if userName != "" {
+				tor.Title = userName + ":" + tor.Title
 			}
 		}
 

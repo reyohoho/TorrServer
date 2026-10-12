@@ -94,6 +94,10 @@ func (r *Reader) Read(p []byte) (n int, err error) {
 
 		r.offset += int64(n)
 		r.lastAccess = time.Now().Unix()
+
+		if n > 0 && r.cache != nil {
+			r.cache.AddBytesReadByClients(int64(n))
+		}
 	} else {
 		log.TLogln("Torrent closed and readed")
 	}
@@ -122,7 +126,7 @@ func (r *Reader) Close() {
 	// file reader close in gotorrent
 	// this struct close in cache
 	r.isClosed = true
-	if len(r.file.Torrent().Files()) > 0 {
+	if r.file.Torrent() != nil && len(r.file.Torrent().Files()) > 0 {
 		r.Reader.Close()
 	}
 	go r.cache.getRemPieces()
