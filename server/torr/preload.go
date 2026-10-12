@@ -83,19 +83,31 @@ func (t *Torrent) Preload(index int, size int64) {
 			case <-ticker.C:
 				t.muTorrent.Lock()
 				stat := t.Stat
+				tor := t.Torrent
+				fileTor := file.Torrent()
+				preloaded := t.PreloadedBytes
+				preloadSize := t.PreloadSize
+				speed := t.DownloadSpeed
+				var active, total, seeds int
+				var hash string
+				if stat == state.TorrentPreload && tor != nil && fileTor != nil {
+					st := tor.Stats()
+					active, total, seeds = st.ActivePeers, st.TotalPeers, st.ConnectedSeeders
+					hash = fileTor.InfoHash().HexString()
+				}
 				t.muTorrent.Unlock()
 
-				if stat != state.TorrentPreload {
+				if stat != state.TorrentPreload || tor == nil || fileTor == nil {
 					return
 				}
 
-				statStr := fmt.Sprint(file.Torrent().InfoHash().HexString(), " ",
-					utils2.Format(float64(t.PreloadedBytes)), "/",
-					utils2.Format(float64(t.PreloadSize)), " Speed:",
-					utils2.Format(t.DownloadSpeed), " Peers:",
-					t.Torrent.Stats().ActivePeers, "/",
-					t.Torrent.Stats().TotalPeers, " [Seeds:",
-					t.Torrent.Stats().ConnectedSeeders, "]")
+				statStr := fmt.Sprint(hash, " ",
+					utils2.Format(float64(preloaded)), "/",
+					utils2.Format(float64(preloadSize)), " Speed:",
+					utils2.Format(speed), " Peers:",
+					active, "/",
+					total, " [Seeds:",
+					seeds, "]")
 				log.TLogln("Preload:", statStr)
 				t.AddExpiredTime(timeout)
 			case <-stopChan:
@@ -259,13 +271,24 @@ func (t *Torrent) Preload(index int, size int64) {
 	// Final log
 	t.muTorrent.Lock()
 	finalStat := t.Stat
+	tor := t.Torrent
+	fileTor := file.Torrent()
+	var active, total, seeds int
+	var hash string
+	if finalStat == state.TorrentPreload && tor != nil && fileTor != nil {
+		st := tor.Stats()
+		active, total, seeds = st.ActivePeers, st.TotalPeers, st.ConnectedSeeders
+		hash = fileTor.InfoHash().HexString()
+	}
 	t.muTorrent.Unlock()
 
-	if finalStat == state.TorrentPreload {
-		log.TLogln("End preload:", file.Torrent().InfoHash().HexString(),
-			"Peers:", t.Torrent.Stats().ActivePeers, "/",
-			t.Torrent.Stats().TotalPeers, "[ Seeds:",
-			t.Torrent.Stats().ConnectedSeeders, "]")
+	if finalStat == state.TorrentPreload && tor != nil && fileTor != nil {
+		log.TLogln("End preload:", hash,
+			"Peers:", active, "/",
+			total, "[ Seeds:",
+			seeds, "]")
+	} else {
+		log.TLogln("End preload: torrent closed during preload")
 	}
 }
 
